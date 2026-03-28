@@ -133,11 +133,11 @@ We're transparent about how we assess submissions:
 
 | Dimension | Weight | What We Look For |
 |---|---|---|
-| **AI Integration** | 30% | Prompt quality, structured extraction accuracy, goes beyond a simple API wrapper |
+| **AI Integration** | 20% | Prompt quality, structured extraction accuracy, goes beyond a simple API wrapper |
 | **API Design** | 20% | Clean endpoint structure, good TypeScript types, separation of concerns |
 | **Frontend & UX** | 20% | Visual appeal, usability, polish — does it feel like a real product? |
-| **Code Quality** | 15% | TypeScript usage, architecture, readability, pragmatic choices |
-| **Problem Solving** | 15% | Decision quality, approach clarity, effective AI tool usage (from transcripts + APPROACH.md) |
+| **Code Quality** | 20% | TypeScript usage, architecture, readability, pragmatic choices |
+| **Problem Solving** | 20% | Decision quality, approach clarity, effective AI tool usage (from transcripts + APPROACH.md) |
 
 We value **pragmatism over perfection**. A clean, working solution that handles the core requirements well will score higher than a sprawling attempt to cover everything.
 
