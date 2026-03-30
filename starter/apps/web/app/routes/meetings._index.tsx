@@ -1,40 +1,20 @@
 import { Link, useLoaderData } from 'react-router';
 import type { MeetingSummary } from '@meeting-mind/shared';
+import { getApiUrl } from '../api-url.server';
+import { statusLabel, statusClass } from '../analysis-status';
 
 export function meta() {
   return [{ title: 'Meetings — Meeting Mind' }];
 }
 
 export async function loader() {
-  const apiUrl = process.env.API_URL;
+  const apiUrl = getApiUrl();
   const res = await fetch(`${apiUrl}/meetings`);
   if (!res.ok) {
     throw new Response('Failed to load meetings', { status: res.status });
   }
   const meetings = (await res.json()) as MeetingSummary[];
   return { meetings };
-}
-
-function statusLabel(status: MeetingSummary['analysisStatus']) {
-  switch (status) {
-    case 'completed':
-      return 'Complete';
-    case 'failed':
-      return 'Failed';
-    default:
-      return 'Pending';
-  }
-}
-
-function statusClass(status: MeetingSummary['analysisStatus']) {
-  switch (status) {
-    case 'completed':
-      return 'bg-emerald-50 text-emerald-800 ring-emerald-600/20';
-    case 'failed':
-      return 'bg-red-50 text-red-800 ring-red-600/20';
-    default:
-      return 'bg-amber-50 text-amber-800 ring-amber-600/20';
-  }
 }
 
 function formatOccurredAt(iso: string) {

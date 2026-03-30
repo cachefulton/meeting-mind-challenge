@@ -115,7 +115,12 @@ export class AnalysisService {
       throw new Error('AI analysis returned an invalid response.');
     }
 
-    if (!parsed.summary || !Array.isArray(parsed.actionItems)) {
+    if (
+      !parsed.summary ||
+      !Array.isArray(parsed.actionItems) ||
+      !Array.isArray(parsed.decisions) ||
+      !Array.isArray(parsed.openQuestions)
+    ) {
       this.logger.error('Gemini response missing required fields', parsed);
       throw new Error('AI analysis response is missing required fields.');
     }

@@ -1,5 +1,6 @@
 import { Form, redirect, useActionData, useNavigation, Link } from 'react-router';
 import type { Route } from './+types/meetings.new';
+import { getApiUrl } from '../api-url.server';
 
 export function meta() {
   return [{ title: 'New Meeting — Meeting Mind' }];
@@ -20,7 +21,7 @@ export async function action({ request }: Route.ActionArgs) {
     return { errors, values: { title, occurredAt, transcriptText } };
   }
 
-  const apiUrl = process.env.API_URL;
+  const apiUrl = getApiUrl();
   const res = await fetch(`${apiUrl}/meetings`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

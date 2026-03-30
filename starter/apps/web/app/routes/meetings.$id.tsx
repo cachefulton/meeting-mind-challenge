@@ -1,12 +1,14 @@
 import { Link, useLoaderData } from 'react-router';
 import type { Meeting } from '@meeting-mind/shared';
 import type { Route } from './+types/meetings.$id';
+import { getApiUrl } from '../api-url.server';
+import { statusLabel, statusClass } from '../analysis-status';
 
 export async function loader({ params }: Route.LoaderArgs) {
   const id = params.id;
   if (!id) throw new Response('Not Found', { status: 404 });
 
-  const apiUrl = process.env.API_URL;
+  const apiUrl = getApiUrl();
   const res = await fetch(`${apiUrl}/meetings/${id}`);
   if (res.status === 404) throw new Response('Not Found', { status: 404 });
   if (!res.ok) {
@@ -20,28 +22,6 @@ export async function loader({ params }: Route.LoaderArgs) {
 export function meta({ loaderData }: Route.MetaArgs) {
   const title = loaderData?.meeting?.title ?? 'Meeting';
   return [{ title: `${title} — Meeting Mind` }];
-}
-
-function statusLabel(status: Meeting['analysisStatus']) {
-  switch (status) {
-    case 'completed':
-      return 'Analysis complete';
-    case 'failed':
-      return 'Analysis failed';
-    default:
-      return 'Analyzing…';
-  }
-}
-
-function statusClass(status: Meeting['analysisStatus']) {
-  switch (status) {
-    case 'completed':
-      return 'bg-emerald-50 text-emerald-800 ring-emerald-600/20';
-    case 'failed':
-      return 'bg-red-50 text-red-800 ring-red-600/20';
-    default:
-      return 'bg-amber-50 text-amber-800 ring-amber-600/20';
-  }
 }
 
 export default function MeetingDetail() {
@@ -68,7 +48,7 @@ export default function MeetingDetail() {
           <span
             className={`inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${statusClass(meeting.analysisStatus)}`}
           >
-            {statusLabel(meeting.analysisStatus)}
+            {statusLabel(meeting.analysisStatus, 'long')}
           </span>
         </div>
       </div>
@@ -84,13 +64,13 @@ export default function MeetingDetail() {
         </section>
       )}
 
-      {meeting.actionItems.length > 0 && (
+      {(meeting.actionItems ?? []).length > 0 && (
         <section className="mb-8">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
             Action items
           </h2>
           <ul className="mt-2 list-inside list-disc space-y-1 text-gray-800">
-            {meeting.actionItems.map((item, i) => (
+            {(meeting.actionItems ?? []).map((item, i) => (
               <li key={i}>
                 {item.text}
                 {item.assignee && (
@@ -102,26 +82,26 @@ export default function MeetingDetail() {
         </section>
       )}
 
-      {meeting.decisions.length > 0 && (
+      {(meeting.decisions ?? []).length > 0 && (
         <section className="mb-8">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
             Decisions
           </h2>
           <ul className="mt-2 list-inside list-disc space-y-1 text-gray-800">
-            {meeting.decisions.map((d, i) => (
+            {(meeting.decisions ?? []).map((d, i) => (
               <li key={i}>{d.text}</li>
             ))}
           </ul>
         </section>
       )}
 
-      {meeting.openQuestions.length > 0 && (
+      {(meeting.openQuestions ?? []).length > 0 && (
         <section className="mb-8">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
             Open questions
           </h2>
           <ul className="mt-2 list-inside list-disc space-y-1 text-gray-800">
-            {meeting.openQuestions.map((q, i) => (
+            {(meeting.openQuestions ?? []).map((q, i) => (
               <li key={i}>{q.text}</li>
             ))}
           </ul>
