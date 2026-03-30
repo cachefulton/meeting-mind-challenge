@@ -8,6 +8,7 @@ import {
   ScrollRestoration,
   useNavigation,
 } from 'react-router';
+import { ChevronDown } from 'lucide-react';
 import type { LinksFunction } from 'react-router';
 import stylesheet from './app.css?url';
 
@@ -67,21 +68,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   aria-haspopup="menu"
                 >
                   Meetings
-                  <svg
+                  <ChevronDown
                     className="h-4 w-4 text-gray-400 transition-transform duration-200 group-hover:rotate-180 group-hover:text-indigo-500"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
                     aria-hidden
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                    strokeWidth={2}
+                  />
                 </button>
                 <div
-                  className="invisible absolute right-0 top-full z-50 pt-2 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100"
+                  className="invisible absolute right-0 top-full z-50 pt-2 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100"
                   role="menu"
                   aria-orientation="vertical"
                 >

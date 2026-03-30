@@ -7,6 +7,7 @@ import {
   type Decision,
   type OpenQuestion,
 } from '@meeting-mind/shared';
+import { Pencil, AlertCircle, Loader2 } from 'lucide-react';
 import type { Route } from './+types/meetings.$id';
 import { getApiUrl } from '../api-url.server';
 import { statusLabel, statusClass } from '../analysis-status';
@@ -129,14 +130,6 @@ function EditableTitle({ initialTitle }: { initialTitle: string }) {
   );
 }
 
-function PencilIcon({ className = 'h-4 w-4' }: { className?: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={className}>
-      <path d="M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z" />
-    </svg>
-  );
-}
-
 function EditButton({ onClick, label }: { onClick: () => void; label: string }) {
   return (
     <button
@@ -145,7 +138,7 @@ function EditButton({ onClick, label }: { onClick: () => void; label: string }) 
       className="rounded p-1 text-gray-400 opacity-0 transition-opacity hover:text-gray-600 group-hover:opacity-100"
       aria-label={label}
     >
-      <PencilIcon />
+      <Pencil className="h-4 w-4" strokeWidth={2} aria-hidden />
     </button>
   );
 }
@@ -323,9 +316,11 @@ function FailedAnalysisBanner({ error }: { error: string | null }) {
   return (
     <div className="mb-8 rounded-md border border-red-200 bg-red-50 p-4">
       <div className="flex items-start gap-3">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="mt-0.5 h-5 w-5 shrink-0 text-red-400">
-          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
-        </svg>
+        <AlertCircle
+          className="mt-0.5 h-5 w-5 shrink-0 text-red-400"
+          aria-hidden
+          strokeWidth={2}
+        />
         <div className="flex-1">
           <h3 className="text-sm font-medium text-red-800">
             Analysis failed
@@ -347,10 +342,11 @@ function FailedAnalysisBanner({ error }: { error: string | null }) {
             >
               {isRetrying ? (
                 <>
-                  <svg className="mr-1.5 h-3.5 w-3.5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
+                  <Loader2
+                    className="mr-1.5 h-3.5 w-3.5 animate-spin"
+                    aria-hidden
+                    strokeWidth={2}
+                  />
                   Retrying…
                 </>
               ) : (
