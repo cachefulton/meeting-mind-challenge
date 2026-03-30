@@ -14,6 +14,9 @@ import type {
   ActionItem,
   Decision,
   OpenQuestion,
+  Insight,
+  Participant,
+  MeetingSentiment,
 } from '@meeting-mind/shared';
 
 export class CreateMeetingDto implements CreateMeetingRequest {
@@ -39,18 +42,46 @@ export class ActionItemDto implements ActionItem {
   @IsOptional()
   @IsString()
   assignee?: string;
+
+  @IsOptional()
+  @IsString()
+  priority?: 'high' | 'medium' | 'low';
 }
 
 export class DecisionDto implements Decision {
   @IsString()
   @IsNotEmpty()
   text!: string;
+
+  @IsOptional()
+  @IsString()
+  rationale?: string;
 }
 
 export class OpenQuestionDto implements OpenQuestion {
   @IsString()
   @IsNotEmpty()
   text!: string;
+}
+
+export class InsightDto implements Insight {
+  @IsString()
+  @IsNotEmpty()
+  text!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  category!: 'theme' | 'risk' | 'observation' | 'follow-up';
+}
+
+export class ParticipantDto implements Participant {
+  @IsString()
+  @IsNotEmpty()
+  name!: string;
+
+  @IsOptional()
+  @IsString()
+  role?: string;
 }
 
 export class UpdateMeetingDto implements UpdateMeetingRequest {
@@ -81,4 +112,20 @@ export class UpdateMeetingDto implements UpdateMeetingRequest {
   @ValidateNested({ each: true })
   @Type(() => OpenQuestionDto)
   openQuestions?: OpenQuestionDto[];
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => InsightDto)
+  insights?: InsightDto[];
+
+  @IsOptional()
+  @IsString()
+  sentiment?: MeetingSentiment | null;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ParticipantDto)
+  participants?: ParticipantDto[];
 }

@@ -36,6 +36,9 @@ export class MeetingsService {
       saved.actionItems = analysis.actionItems;
       saved.decisions = analysis.decisions;
       saved.openQuestions = analysis.openQuestions;
+      saved.insights = analysis.insights;
+      saved.sentiment = analysis.sentiment;
+      saved.participants = analysis.participants;
       saved.analysisStatus = AnalysisStatus.Completed;
       saved.analysisError = null;
     } catch (err) {
@@ -61,6 +64,9 @@ export class MeetingsService {
     if (dto.actionItems !== undefined) meeting.actionItems = dto.actionItems;
     if (dto.decisions !== undefined) meeting.decisions = dto.decisions;
     if (dto.openQuestions !== undefined) meeting.openQuestions = dto.openQuestions;
+    if (dto.insights !== undefined) meeting.insights = dto.insights;
+    if (dto.sentiment !== undefined) meeting.sentiment = dto.sentiment;
+    if (dto.participants !== undefined) meeting.participants = dto.participants;
     const saved = await this.meetingsRepo.save(meeting);
     return this.toResponse(saved);
   }
@@ -83,6 +89,9 @@ export class MeetingsService {
       meeting.actionItems = analysis.actionItems;
       meeting.decisions = analysis.decisions;
       meeting.openQuestions = analysis.openQuestions;
+      meeting.insights = analysis.insights;
+      meeting.sentiment = analysis.sentiment;
+      meeting.participants = analysis.participants;
       meeting.analysisStatus = AnalysisStatus.Completed;
       meeting.analysisError = null;
     } catch (err) {
@@ -131,6 +140,9 @@ export class MeetingsService {
       actionItems: m.actionItems,
       decisions: m.decisions,
       openQuestions: m.openQuestions,
+      insights: m.insights ?? [],
+      sentiment: m.sentiment ?? null,
+      participants: m.participants ?? [],
       analysisStatus: m.analysisStatus,
       analysisError: m.analysisError,
       createdAt: m.createdAt instanceof Date ? m.createdAt.toISOString() : m.createdAt,

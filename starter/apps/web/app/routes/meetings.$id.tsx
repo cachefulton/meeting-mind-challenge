@@ -6,6 +6,9 @@ import {
   type ActionItem,
   type Decision,
   type OpenQuestion,
+  type Insight,
+  type Participant,
+  type MeetingSentiment,
 } from '@meeting-mind/shared';
 import { Pencil, AlertCircle, Loader2 } from 'lucide-react';
 import type { Route } from './+types/meetings.$id';
@@ -309,6 +312,97 @@ function EditableListSection<T extends { text: string }>({
   );
 }
 
+const SENTIMENT_CONFIG: Record<
+  MeetingSentiment,
+  { label: string; className: string }
+> = {
+  productive: {
+    label: 'Productive',
+    className:
+      'bg-green-50 text-green-700 ring-green-600/20',
+  },
+  contentious: {
+    label: 'Contentious',
+    className:
+      'bg-red-50 text-red-700 ring-red-600/20',
+  },
+  exploratory: {
+    label: 'Exploratory',
+    className:
+      'bg-blue-50 text-blue-700 ring-blue-600/20',
+  },
+  neutral: {
+    label: 'Neutral',
+    className:
+      'bg-gray-50 text-gray-600 ring-gray-500/20',
+  },
+};
+
+function SentimentBadge({ sentiment }: { sentiment: MeetingSentiment }) {
+  const config = SENTIMENT_CONFIG[sentiment];
+  return (
+    <span
+      className={`inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${config.className}`}
+    >
+      {config.label}
+    </span>
+  );
+}
+
+const PRIORITY_CONFIG: Record<string, { className: string; label: string }> = {
+  high: { className: 'bg-red-500', label: 'High' },
+  medium: { className: 'bg-amber-400', label: 'Medium' },
+  low: { className: 'bg-gray-300', label: 'Low' },
+};
+
+function PriorityDot({ priority }: { priority?: string }) {
+  if (!priority) return null;
+  const config = PRIORITY_CONFIG[priority];
+  if (!config) return null;
+  return (
+    <span
+      className={`ml-1.5 inline-block h-2 w-2 rounded-full ${config.className}`}
+      title={`${config.label} priority`}
+    />
+  );
+}
+
+const INSIGHT_CATEGORY_CONFIG: Record<
+  string,
+  { label: string; className: string }
+> = {
+  theme: {
+    label: 'Theme',
+    className: 'bg-purple-50 text-purple-700 ring-purple-600/20',
+  },
+  risk: {
+    label: 'Risk',
+    className: 'bg-red-50 text-red-700 ring-red-600/20',
+  },
+  observation: {
+    label: 'Observation',
+    className: 'bg-blue-50 text-blue-700 ring-blue-600/20',
+  },
+  'follow-up': {
+    label: 'Follow-up',
+    className: 'bg-amber-50 text-amber-700 ring-amber-600/20',
+  },
+};
+
+function InsightCategoryPill({ category }: { category: string }) {
+  const config = INSIGHT_CATEGORY_CONFIG[category] ?? {
+    label: category,
+    className: 'bg-gray-50 text-gray-600 ring-gray-500/20',
+  };
+  return (
+    <span
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${config.className}`}
+    >
+      {config.label}
+    </span>
+  );
+}
+
 function FailedAnalysisBanner({ error }: { error: string | null }) {
   const fetcher = useFetcher();
   const isRetrying = fetcher.state !== 'idle';
@@ -379,11 +473,16 @@ export default function MeetingDetail() {
               {meeting.occurredAt}
             </p>
           </div>
-          <span
-            className={`inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${statusClass(meeting.analysisStatus)}`}
-          >
-            {statusLabel(meeting.analysisStatus, 'long')}
-          </span>
+          <div className="flex items-center gap-2">
+            {meeting.sentiment && (
+              <SentimentBadge sentiment={meeting.sentiment} />
+            )}
+            <span
+              className={`inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${statusClass(meeting.analysisStatus)}`}
+            >
+              {statusLabel(meeting.analysisStatus, 'long')}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -411,12 +510,16 @@ export default function MeetingDetail() {
             buildItem={(text, original) => ({
               text,
               assignee: original.assignee,
+              priority: original.priority,
             })}
-            renderExtra={(item) =>
-              item.assignee ? (
-                <span className="text-gray-500"> — {item.assignee}</span>
-              ) : null
-            }
+            renderExtra={(item) => (
+              <>
+                <PriorityDot priority={item.priority} />
+                {item.assignee ? (
+                  <span className="text-gray-500"> — {item.assignee}</span>
+                ) : null}
+              </>
+            )}
             renderExtraEditor={(item, onChange) => (
               <input
                 type="text"
@@ -438,7 +541,17 @@ export default function MeetingDetail() {
           <EditableListSection<Decision>
             items={meeting.decisions ?? []}
             fieldName="decisions"
-            buildItem={(text) => ({ text })}
+            buildItem={(text, original) => ({
+              text,
+              rationale: original.rationale,
+            })}
+            renderExtra={(item) =>
+              item.rationale ? (
+                <span className="block text-sm text-gray-400 italic">
+                  {item.rationale}
+                </span>
+              ) : null
+            }
           />
         </section>
       )}
@@ -453,6 +566,54 @@ export default function MeetingDetail() {
             fieldName="openQuestions"
             buildItem={(text) => ({ text })}
           />
+        </section>
+      )}
+
+      {(meeting.insights ?? []).length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+            Insights
+          </h2>
+          <ul className="mt-3 space-y-3">
+            {(meeting.insights ?? []).map((insight: Insight, i: number) => (
+              <li
+                key={i}
+                className="rounded-lg border border-gray-200/90 bg-gray-50/80 px-4 py-3"
+              >
+                <div className="mb-2">
+                  <InsightCategoryPill category={insight.category} />
+                </div>
+                <p className="text-sm leading-relaxed text-gray-800">
+                  {insight.text}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {(meeting.participants ?? []).length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+            Participants
+          </h2>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {(meeting.participants ?? []).map(
+              (p: Participant, i: number) => (
+                <span
+                  key={i}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-800"
+                >
+                  {p.name}
+                  {p.role && (
+                    <span className="text-xs text-gray-500">
+                      {p.role}
+                    </span>
+                  )}
+                </span>
+              ),
+            )}
+          </div>
         </section>
       )}
 

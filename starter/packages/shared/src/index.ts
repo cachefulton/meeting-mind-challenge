@@ -24,15 +24,33 @@ export type AnalysisStatus =
 export interface ActionItem {
   text: string;
   assignee?: string;
+  priority?: 'high' | 'medium' | 'low';
 }
 
 export interface Decision {
   text: string;
+  rationale?: string;
 }
 
 export interface OpenQuestion {
   text: string;
 }
+
+export interface Insight {
+  text: string;
+  category: 'theme' | 'risk' | 'observation' | 'follow-up';
+}
+
+export interface Participant {
+  name: string;
+  role?: string;
+}
+
+export type MeetingSentiment =
+  | 'productive'
+  | 'contentious'
+  | 'exploratory'
+  | 'neutral';
 
 export interface Meeting {
   id: string;
@@ -43,6 +61,9 @@ export interface Meeting {
   actionItems: ActionItem[];
   decisions: Decision[];
   openQuestions: OpenQuestion[];
+  insights: Insight[];
+  sentiment: MeetingSentiment | null;
+  participants: Participant[];
   analysisStatus: AnalysisStatus;
   analysisError: string | null;
   createdAt: string;
@@ -55,6 +76,9 @@ export interface AnalysisResult {
   actionItems: ActionItem[];
   decisions: Decision[];
   openQuestions: OpenQuestion[];
+  insights: Insight[];
+  sentiment: MeetingSentiment;
+  participants: Participant[];
 }
 
 // --- API request / response DTOs ---
@@ -71,6 +95,9 @@ export interface UpdateMeetingRequest {
   actionItems?: ActionItem[];
   decisions?: Decision[];
   openQuestions?: OpenQuestion[];
+  insights?: Insight[];
+  sentiment?: MeetingSentiment | null;
+  participants?: Participant[];
 }
 
 export interface MeetingSummary {

@@ -10,6 +10,9 @@ import {
   type ActionItem,
   type Decision,
   type OpenQuestion,
+  type Insight,
+  type Participant,
+  type MeetingSentiment,
 } from '@meeting-mind/shared';
 
 @Entity('meetings')
@@ -37,6 +40,15 @@ export class Meeting {
 
   @Column({ type: 'jsonb', default: '[]' })
   openQuestions!: OpenQuestion[];
+
+  @Column({ type: 'jsonb', default: '[]' })
+  insights!: Insight[];
+
+  @Column({ type: 'varchar', nullable: true })
+  sentiment!: MeetingSentiment | null;
+
+  @Column({ type: 'jsonb', default: '[]' })
+  participants!: Participant[];
 
   @Column({
     type: 'enum',
