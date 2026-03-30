@@ -44,6 +44,13 @@ export interface Meeting {
   updatedAt: string;
 }
 
+export interface AnalysisResult {
+  summary: string;
+  actionItems: ActionItem[];
+  decisions: Decision[];
+  openQuestions: OpenQuestion[];
+}
+
 // --- API request / response DTOs ---
 
 export interface CreateMeetingRequest {

@@ -35,6 +35,12 @@ export interface Meeting {
     createdAt: string;
     updatedAt: string;
 }
+export interface AnalysisResult {
+    summary: string;
+    actionItems: ActionItem[];
+    decisions: Decision[];
+    openQuestions: OpenQuestion[];
+}
 export interface CreateMeetingRequest {
     title: string;
     occurredAt: string;

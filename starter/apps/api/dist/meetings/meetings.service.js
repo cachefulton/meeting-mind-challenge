@@ -11,16 +11,22 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var MeetingsService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MeetingsService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
+const shared_1 = require("@meeting-mind/shared");
 const meeting_entity_1 = require("./meeting.entity");
-let MeetingsService = class MeetingsService {
+const analysis_service_1 = require("../analysis/analysis.service");
+let MeetingsService = MeetingsService_1 = class MeetingsService {
     meetingsRepo;
-    constructor(meetingsRepo) {
+    analysisService;
+    logger = new common_1.Logger(MeetingsService_1.name);
+    constructor(meetingsRepo, analysisService) {
         this.meetingsRepo = meetingsRepo;
+        this.analysisService = analysisService;
     }
     async create(dto) {
         const meeting = this.meetingsRepo.create({
@@ -29,7 +35,20 @@ let MeetingsService = class MeetingsService {
             transcriptText: dto.transcriptText,
         });
         const saved = await this.meetingsRepo.save(meeting);
-        return this.toResponse(saved);
+        try {
+            const analysis = await this.analysisService.analyze(saved.transcriptText);
+            saved.summary = analysis.summary;
+            saved.actionItems = analysis.actionItems;
+            saved.decisions = analysis.decisions;
+            saved.openQuestions = analysis.openQuestions;
+            saved.analysisStatus = shared_1.AnalysisStatus.Completed;
+        }
+        catch (err) {
+            this.logger.error(`Analysis failed for meeting ${saved.id}`, err instanceof Error ? err.stack : err);
+            saved.analysisStatus = shared_1.AnalysisStatus.Failed;
+        }
+        const updated = await this.meetingsRepo.save(saved);
+        return this.toResponse(updated);
     }
     async findAll() {
         const meetings = await this.meetingsRepo.find({
@@ -68,9 +87,10 @@ let MeetingsService = class MeetingsService {
     }
 };
 exports.MeetingsService = MeetingsService;
-exports.MeetingsService = MeetingsService = __decorate([
+exports.MeetingsService = MeetingsService = MeetingsService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(meeting_entity_1.Meeting)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        analysis_service_1.AnalysisService])
 ], MeetingsService);
 //# sourceMappingURL=meetings.service.js.map

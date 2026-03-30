@@ -12,6 +12,7 @@
     "db:migrate": "turbo db:migrate --filter=api"
   },
   "devDependencies": {
+    "dotenv-cli": "^11.0.0",
     "turbo": "^2.4.0",
     "typescript": "^5.7.0"
   },

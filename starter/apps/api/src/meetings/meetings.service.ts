@@ -1,18 +1,23 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Meeting } from './meeting.entity';
-import { CreateMeetingDto } from './create-meeting.dto';
+import { AnalysisStatus } from '@meeting-mind/shared';
 import type {
   Meeting as MeetingResponse,
   MeetingSummary,
 } from '@meeting-mind/shared';
+import { Meeting } from './meeting.entity';
+import { CreateMeetingDto } from './create-meeting.dto';
+import { AnalysisService } from '../analysis/analysis.service';
 
 @Injectable()
 export class MeetingsService {
+  private readonly logger = new Logger(MeetingsService.name);
+
   constructor(
     @InjectRepository(Meeting)
     private readonly meetingsRepo: Repository<Meeting>,
+    private readonly analysisService: AnalysisService,
   ) {}
 
   async create(dto: CreateMeetingDto): Promise<MeetingResponse> {
@@ -23,7 +28,24 @@ export class MeetingsService {
     });
 
     const saved = await this.meetingsRepo.save(meeting);
-    return this.toResponse(saved);
+
+    try {
+      const analysis = await this.analysisService.analyze(saved.transcriptText);
+      saved.summary = analysis.summary;
+      saved.actionItems = analysis.actionItems;
+      saved.decisions = analysis.decisions;
+      saved.openQuestions = analysis.openQuestions;
+      saved.analysisStatus = AnalysisStatus.Completed;
+    } catch (err) {
+      this.logger.error(
+        `Analysis failed for meeting ${saved.id}`,
+        err instanceof Error ? err.stack : err,
+      );
+      saved.analysisStatus = AnalysisStatus.Failed;
+    }
+
+    const updated = await this.meetingsRepo.save(saved);
+    return this.toResponse(updated);
   }
 
   async findAll(): Promise<MeetingSummary[]> {
