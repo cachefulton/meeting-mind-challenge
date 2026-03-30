@@ -2,6 +2,7 @@ import {
   Link,
   Links,
   Meta,
+  NavLink,
   Outlet,
   Scripts,
   ScrollRestoration,
@@ -39,26 +40,84 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <NavLoadingBar />
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex h-16 items-center justify-between gap-6">
-              <div className="flex items-center gap-6">
-                <Link
-                  to="/"
-                  className="text-xl font-semibold hover:text-indigo-600 transition-colors"
-                >
-                  Meeting Mind
-                </Link>
+              <Link
+                to="/"
+                className="text-xl font-semibold text-gray-900 transition-colors hover:text-indigo-600"
+              >
+                Meeting Mind
+              </Link>
+              <div className="flex items-center gap-1 sm:hidden">
                 <Link
                   to="/meetings"
-                  className="hidden text-sm font-medium text-gray-600 hover:text-indigo-600 sm:inline"
+                  className="rounded-lg px-2.5 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-indigo-600"
                 >
-                  Meetings
+                  All meetings
+                </Link>
+                <Link
+                  to="/meetings/new"
+                  className="rounded-lg px-2.5 py-2 text-sm font-medium text-indigo-600 transition-colors hover:bg-indigo-50"
+                >
+                  New meeting
                 </Link>
               </div>
-              <Link
-                to="/meetings/new"
-                className="inline-flex shrink-0 items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >
-                + New Meeting
-              </Link>
+              <div className="group relative hidden sm:block">
+                <button
+                  type="button"
+                  className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                  aria-haspopup="menu"
+                >
+                  Meetings
+                  <svg
+                    className="h-4 w-4 text-gray-400 transition-transform duration-200 group-hover:rotate-180 group-hover:text-indigo-500"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+                <div
+                  className="invisible absolute right-0 top-full z-50 pt-2 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100"
+                  role="menu"
+                  aria-orientation="vertical"
+                >
+                  <div className="min-w-50 overflow-hidden rounded-xl border border-gray-200/80 bg-white py-1 shadow-lg shadow-gray-900/5 ring-1 ring-black/4">
+                    <NavLink
+                      to="/meetings"
+                      end
+                      role="menuitem"
+                      className={({ isActive }) =>
+                        [
+                          'block px-4 py-2.5 text-sm transition-colors',
+                          isActive
+                            ? 'bg-indigo-50 font-medium text-indigo-700'
+                            : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600',
+                        ].join(' ')
+                      }
+                    >
+                      All meetings
+                    </NavLink>
+                    <NavLink
+                      to="/meetings/new"
+                      role="menuitem"
+                      className={({ isActive }) =>
+                        [
+                          'block px-4 py-2.5 text-sm transition-colors',
+                          isActive
+                            ? 'bg-indigo-50 font-medium text-indigo-700'
+                            : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600',
+                        ].join(' ')
+                      }
+                    >
+                      New meeting
+                    </NavLink>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </header>
