@@ -22,12 +22,15 @@ type Pages = {
       "id": string;
     };
   };
+  "/meetings": {
+    params: {};
+  };
 };
 
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/meetings/new" | "/meetings/:id";
+    page: "/" | "/meetings/new" | "/meetings/:id" | "/meetings";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -41,6 +44,10 @@ type RouteFiles = {
     id: "routes/meetings.$id";
     page: "/meetings/:id";
   };
+  "routes/meetings._index.tsx": {
+    id: "routes/meetings._index";
+    page: "/meetings";
+  };
 };
 
 type RouteModules = {
@@ -48,4 +55,5 @@ type RouteModules = {
   "routes/home": typeof import("./app/routes/home.tsx");
   "routes/meetings.new": typeof import("./app/routes/meetings.new.tsx");
   "routes/meetings.$id": typeof import("./app/routes/meetings.$id.tsx");
+  "routes/meetings._index": typeof import("./app/routes/meetings._index.tsx");
 };

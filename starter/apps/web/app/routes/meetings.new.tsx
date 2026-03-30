@@ -55,10 +55,10 @@ export default function NewMeeting({ actionData }: Route.ComponentProps) {
     <div className="mx-auto max-w-2xl">
       <div className="mb-8">
         <Link
-          to="/"
+          to="/meetings"
           className="text-sm text-indigo-600 hover:text-indigo-500"
         >
-          &larr; Back to dashboard
+          &larr; All meetings
         </Link>
         <h2 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
           New Meeting
@@ -151,7 +151,7 @@ export default function NewMeeting({ actionData }: Route.ComponentProps) {
 
         <div className="flex items-center justify-end gap-3">
           <Link
-            to="/"
+            to="/meetings"
             className="text-sm font-medium text-gray-600 hover:text-gray-500"
           >
             Cancel

@@ -51,10 +51,10 @@ export default function MeetingDetail() {
     <div className="mx-auto max-w-3xl">
       <div className="mb-8">
         <Link
-          to="/"
+          to="/meetings"
           className="text-sm text-indigo-600 hover:text-indigo-500"
         >
-          &larr; Back to dashboard
+          &larr; All meetings
         </Link>
         <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
           <div>

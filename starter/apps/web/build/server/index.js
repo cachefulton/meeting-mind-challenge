@@ -60,11 +60,19 @@ const entryServer = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineP
   default: handleRequest,
   streamTimeout
 }, Symbol.toStringTag, { value: "Module" }));
-const stylesheet = "/assets/app-DWRosLHk.css";
+const stylesheet = "/assets/app-zPOYGNhm.css";
 const links = () => [{
   rel: "stylesheet",
   href: stylesheet
 }];
+function NavLoadingBar() {
+  const navigation = useNavigation();
+  if (navigation.state !== "loading") return null;
+  return /* @__PURE__ */ jsx("div", {
+    className: "pointer-events-none absolute inset-x-0 top-0 z-50 h-0.5 animate-pulse bg-indigo-600",
+    "aria-hidden": true
+  });
+}
 function Layout({
   children
 }) {
@@ -79,23 +87,30 @@ function Layout({
       }), /* @__PURE__ */ jsx(Meta, {}), /* @__PURE__ */ jsx(Links, {})]
     }), /* @__PURE__ */ jsxs("body", {
       className: "bg-gray-50 text-gray-900 min-h-screen",
-      children: [/* @__PURE__ */ jsx("header", {
-        className: "border-b border-gray-200 bg-white",
-        children: /* @__PURE__ */ jsx("div", {
+      children: [/* @__PURE__ */ jsxs("header", {
+        className: "relative border-b border-gray-200 bg-white",
+        children: [/* @__PURE__ */ jsx(NavLoadingBar, {}), /* @__PURE__ */ jsx("div", {
           className: "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8",
           children: /* @__PURE__ */ jsxs("div", {
-            className: "flex h-16 items-center justify-between",
-            children: [/* @__PURE__ */ jsx(Link, {
-              to: "/",
-              className: "text-xl font-semibold hover:text-indigo-600 transition-colors",
-              children: "Meeting Mind"
+            className: "flex h-16 items-center justify-between gap-6",
+            children: [/* @__PURE__ */ jsxs("div", {
+              className: "flex items-center gap-6",
+              children: [/* @__PURE__ */ jsx(Link, {
+                to: "/",
+                className: "text-xl font-semibold hover:text-indigo-600 transition-colors",
+                children: "Meeting Mind"
+              }), /* @__PURE__ */ jsx(Link, {
+                to: "/meetings",
+                className: "hidden text-sm font-medium text-gray-600 hover:text-indigo-600 sm:inline",
+                children: "Meetings"
+              })]
             }), /* @__PURE__ */ jsx(Link, {
               to: "/meetings/new",
-              className: "inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
+              className: "inline-flex shrink-0 items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
               children: "+ New Meeting"
             })]
           })
-        })
+        })]
       }), /* @__PURE__ */ jsx("main", {
         className: "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8",
         children
@@ -122,8 +137,19 @@ const home = UNSAFE_withComponentProps(function Home() {
       className: "mt-4 text-lg text-gray-600",
       children: "AI-powered meeting debrief tool."
     }), /* @__PURE__ */ jsx("p", {
-      className: "mt-2 text-sm text-gray-400",
-      children: "This is a starter shell. Replace it with whatever UI you want — new routes, layouts, components. Make it yours."
+      className: "mt-2 text-sm text-gray-500",
+      children: "Paste a transcript, get a summary, action items, decisions, and open questions."
+    }), /* @__PURE__ */ jsxs("div", {
+      className: "mt-10 flex flex-wrap items-center justify-center gap-4",
+      children: [/* @__PURE__ */ jsx(Link, {
+        to: "/meetings",
+        className: "inline-flex items-center rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
+        children: "View meetings"
+      }), /* @__PURE__ */ jsx(Link, {
+        to: "/meetings/new",
+        className: "inline-flex items-center rounded-md border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50",
+        children: "New meeting"
+      })]
     })]
   });
 });
@@ -131,7 +157,7 @@ const route1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   __proto__: null,
   default: home
 }, Symbol.toStringTag, { value: "Module" }));
-function meta$1() {
+function meta$2() {
   return [{
     title: "New Meeting — Meeting Mind"
   }];
@@ -204,9 +230,9 @@ const meetings_new = UNSAFE_withComponentProps(function NewMeeting({
     children: [/* @__PURE__ */ jsxs("div", {
       className: "mb-8",
       children: [/* @__PURE__ */ jsx(Link, {
-        to: "/",
+        to: "/meetings",
         className: "text-sm text-indigo-600 hover:text-indigo-500",
-        children: "← Back to dashboard"
+        children: "← All meetings"
       }), /* @__PURE__ */ jsx("h2", {
         className: "mt-2 text-2xl font-bold tracking-tight text-gray-900",
         children: "New Meeting"
@@ -273,7 +299,7 @@ const meetings_new = UNSAFE_withComponentProps(function NewMeeting({
       }), /* @__PURE__ */ jsxs("div", {
         className: "flex items-center justify-end gap-3",
         children: [/* @__PURE__ */ jsx(Link, {
-          to: "/",
+          to: "/meetings",
           className: "text-sm font-medium text-gray-600 hover:text-gray-500",
           children: "Cancel"
         }), /* @__PURE__ */ jsx("button", {
@@ -309,9 +335,9 @@ const route2 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   __proto__: null,
   action,
   default: meetings_new,
-  meta: meta$1
+  meta: meta$2
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader({
+async function loader$1({
   params
 }) {
   const id = params.id;
@@ -333,7 +359,7 @@ async function loader({
     meeting
   };
 }
-function meta({
+function meta$1({
   loaderData
 }) {
   var _a;
@@ -342,7 +368,7 @@ function meta({
     title: `${title} — Meeting Mind`
   }];
 }
-function statusLabel(status) {
+function statusLabel$1(status) {
   switch (status) {
     case "completed":
       return "Analysis complete";
@@ -352,7 +378,7 @@ function statusLabel(status) {
       return "Analyzing…";
   }
 }
-function statusClass(status) {
+function statusClass$1(status) {
   switch (status) {
     case "completed":
       return "bg-emerald-50 text-emerald-800 ring-emerald-600/20";
@@ -371,9 +397,9 @@ const meetings_$id = UNSAFE_withComponentProps(function MeetingDetail() {
     children: [/* @__PURE__ */ jsxs("div", {
       className: "mb-8",
       children: [/* @__PURE__ */ jsx(Link, {
-        to: "/",
+        to: "/meetings",
         className: "text-sm text-indigo-600 hover:text-indigo-500",
-        children: "← Back to dashboard"
+        children: "← All meetings"
       }), /* @__PURE__ */ jsxs("div", {
         className: "mt-4 flex flex-wrap items-start justify-between gap-4",
         children: [/* @__PURE__ */ jsxs("div", {
@@ -385,8 +411,8 @@ const meetings_$id = UNSAFE_withComponentProps(function MeetingDetail() {
             children: meeting.occurredAt
           })]
         }), /* @__PURE__ */ jsx("span", {
-          className: `inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${statusClass(meeting.analysisStatus)}`,
-          children: statusLabel(meeting.analysisStatus)
+          className: `inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${statusClass$1(meeting.analysisStatus)}`,
+          children: statusLabel$1(meeting.analysisStatus)
         })]
       })]
     }), meeting.summary && /* @__PURE__ */ jsxs("section", {
@@ -448,10 +474,160 @@ const meetings_$id = UNSAFE_withComponentProps(function MeetingDetail() {
 const route3 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: meetings_$id,
+  loader: loader$1,
+  meta: meta$1
+}, Symbol.toStringTag, { value: "Module" }));
+function meta() {
+  return [{
+    title: "Meetings — Meeting Mind"
+  }];
+}
+async function loader() {
+  const apiUrl = process.env.API_URL;
+  const res = await fetch(`${apiUrl}/meetings`);
+  if (!res.ok) {
+    throw new Response("Failed to load meetings", {
+      status: res.status
+    });
+  }
+  const meetings = await res.json();
+  return {
+    meetings
+  };
+}
+function statusLabel(status) {
+  switch (status) {
+    case "completed":
+      return "Complete";
+    case "failed":
+      return "Failed";
+    default:
+      return "Pending";
+  }
+}
+function statusClass(status) {
+  switch (status) {
+    case "completed":
+      return "bg-emerald-50 text-emerald-800 ring-emerald-600/20";
+    case "failed":
+      return "bg-red-50 text-red-800 ring-red-600/20";
+    default:
+      return "bg-amber-50 text-amber-800 ring-amber-600/20";
+  }
+}
+function formatOccurredAt(iso) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return new Intl.DateTimeFormat(void 0, {
+    dateStyle: "medium"
+  }).format(d);
+}
+const meetings__index = UNSAFE_withComponentProps(function MeetingsIndex() {
+  const {
+    meetings
+  } = useLoaderData();
+  return /* @__PURE__ */ jsxs("div", {
+    className: "mx-auto max-w-5xl",
+    children: [/* @__PURE__ */ jsxs("div", {
+      className: "mb-8 flex flex-wrap items-end justify-between gap-4",
+      children: [/* @__PURE__ */ jsxs("div", {
+        children: [/* @__PURE__ */ jsx("h1", {
+          className: "text-2xl font-bold tracking-tight text-gray-900",
+          children: "Meetings"
+        }), /* @__PURE__ */ jsx("p", {
+          className: "mt-1 text-sm text-gray-500",
+          children: "Browse processed transcripts and open a meeting for full detail."
+        })]
+      }), /* @__PURE__ */ jsx(Link, {
+        to: "/meetings/new",
+        className: "inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
+        children: "+ New Meeting"
+      })]
+    }), meetings.length === 0 ? /* @__PURE__ */ jsxs("div", {
+      className: "rounded-lg border border-dashed border-gray-300 bg-white px-6 py-16 text-center",
+      children: [/* @__PURE__ */ jsx("p", {
+        className: "text-base font-medium text-gray-900",
+        children: "No meetings yet"
+      }), /* @__PURE__ */ jsx("p", {
+        className: "mt-2 text-sm text-gray-500",
+        children: "Create your first meeting from a pasted transcript to see it here."
+      }), /* @__PURE__ */ jsx(Link, {
+        to: "/meetings/new",
+        className: "mt-6 inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500",
+        children: "New Meeting"
+      })]
+    }) : /* @__PURE__ */ jsx("div", {
+      className: "overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm",
+      children: /* @__PURE__ */ jsxs("table", {
+        className: "min-w-full divide-y divide-gray-200",
+        children: [/* @__PURE__ */ jsx("thead", {
+          className: "bg-gray-50",
+          children: /* @__PURE__ */ jsxs("tr", {
+            children: [/* @__PURE__ */ jsx("th", {
+              scope: "col",
+              className: "py-3.5 pl-4 pr-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 sm:pl-6",
+              children: "Title"
+            }), /* @__PURE__ */ jsx("th", {
+              scope: "col",
+              className: "hidden px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 sm:table-cell",
+              children: "Date"
+            }), /* @__PURE__ */ jsx("th", {
+              scope: "col",
+              className: "px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500",
+              children: "Status"
+            }), /* @__PURE__ */ jsx("th", {
+              scope: "col",
+              className: "relative py-3.5 pl-3 pr-4 sm:pr-6",
+              children: /* @__PURE__ */ jsx("span", {
+                className: "sr-only",
+                children: "Open"
+              })
+            })]
+          })
+        }), /* @__PURE__ */ jsx("tbody", {
+          className: "divide-y divide-gray-200",
+          children: meetings.map((m) => /* @__PURE__ */ jsxs("tr", {
+            className: "hover:bg-gray-50",
+            children: [/* @__PURE__ */ jsx("td", {
+              className: "whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6",
+              children: /* @__PURE__ */ jsx(Link, {
+                to: `/meetings/${m.id}`,
+                className: "text-indigo-600 hover:text-indigo-500",
+                children: m.title
+              })
+            }), /* @__PURE__ */ jsx("td", {
+              className: "hidden whitespace-nowrap px-3 py-4 text-sm text-gray-500 sm:table-cell",
+              children: formatOccurredAt(m.occurredAt)
+            }), /* @__PURE__ */ jsx("td", {
+              className: "whitespace-nowrap px-3 py-4 text-sm",
+              children: /* @__PURE__ */ jsx("span", {
+                className: `inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${statusClass(m.analysisStatus)}`,
+                children: statusLabel(m.analysisStatus)
+              })
+            }), /* @__PURE__ */ jsx("td", {
+              className: "relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm sm:pr-6",
+              children: /* @__PURE__ */ jsxs(Link, {
+                to: `/meetings/${m.id}`,
+                className: "font-medium text-indigo-600 hover:text-indigo-500",
+                children: ["View", /* @__PURE__ */ jsxs("span", {
+                  className: "sr-only",
+                  children: [", ", m.title]
+                })]
+              })
+            })]
+          }, m.id))
+        })]
+      })
+    })]
+  });
+});
+const route4 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  default: meetings__index,
   loader,
   meta
 }, Symbol.toStringTag, { value: "Module" }));
-const serverManifest = { "entry": { "module": "/assets/entry.client-B37Zh8g_.js", "imports": ["/assets/chunk-UVKPFVEO-DwhDmhku.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasDefaultExport": true, "hasErrorBoundary": false, "module": "/assets/root-D5S1a6Qa.js", "imports": ["/assets/chunk-UVKPFVEO-DwhDmhku.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/home": { "id": "routes/home", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasDefaultExport": true, "hasErrorBoundary": false, "module": "/assets/home-DtPclRT-.js", "imports": ["/assets/chunk-UVKPFVEO-DwhDmhku.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/meetings.new": { "id": "routes/meetings.new", "parentId": "root", "path": "meetings/new", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasDefaultExport": true, "hasErrorBoundary": false, "module": "/assets/meetings.new-DP2hcDoK.js", "imports": ["/assets/chunk-UVKPFVEO-DwhDmhku.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/meetings.$id": { "id": "routes/meetings.$id", "parentId": "root", "path": "meetings/:id", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasDefaultExport": true, "hasErrorBoundary": false, "module": "/assets/meetings._id-Bgo75w35.js", "imports": ["/assets/chunk-UVKPFVEO-DwhDmhku.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 } }, "url": "/assets/manifest-9d1d0a0c.js", "version": "9d1d0a0c", "sri": void 0 };
+const serverManifest = { "entry": { "module": "/assets/entry.client-B37Zh8g_.js", "imports": ["/assets/chunk-UVKPFVEO-DwhDmhku.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasDefaultExport": true, "hasErrorBoundary": false, "module": "/assets/root-CZdY6Ur0.js", "imports": ["/assets/chunk-UVKPFVEO-DwhDmhku.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/home": { "id": "routes/home", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasDefaultExport": true, "hasErrorBoundary": false, "module": "/assets/home-C0ut2mtZ.js", "imports": ["/assets/chunk-UVKPFVEO-DwhDmhku.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/meetings.new": { "id": "routes/meetings.new", "parentId": "root", "path": "meetings/new", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasDefaultExport": true, "hasErrorBoundary": false, "module": "/assets/meetings.new-BnHr7vWp.js", "imports": ["/assets/chunk-UVKPFVEO-DwhDmhku.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/meetings.$id": { "id": "routes/meetings.$id", "parentId": "root", "path": "meetings/:id", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasDefaultExport": true, "hasErrorBoundary": false, "module": "/assets/meetings._id-CJ2cTaQ-.js", "imports": ["/assets/chunk-UVKPFVEO-DwhDmhku.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/meetings._index": { "id": "routes/meetings._index", "parentId": "root", "path": "meetings", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasDefaultExport": true, "hasErrorBoundary": false, "module": "/assets/meetings._index-CV2bUE8X.js", "imports": ["/assets/chunk-UVKPFVEO-DwhDmhku.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 } }, "url": "/assets/manifest-cc5524aa.js", "version": "cc5524aa", "sri": void 0 };
 const assetsBuildDirectory = "build/client";
 const basename = "/";
 const future = { "unstable_optimizeDeps": false, "unstable_passThroughRequests": false, "unstable_subResourceIntegrity": false, "unstable_trailingSlashAwareDataRequests": false, "unstable_previewServerPrerendering": false, "v8_middleware": false, "v8_splitRouteModules": false, "v8_viteEnvironmentApi": false };
@@ -493,6 +669,14 @@ const routes = {
     index: void 0,
     caseSensitive: void 0,
     module: route3
+  },
+  "routes/meetings._index": {
+    id: "routes/meetings._index",
+    parentId: "root",
+    path: "meetings",
+    index: void 0,
+    caseSensitive: void 0,
+    module: route4
   }
 };
 const allowedActionOrigins = false;
