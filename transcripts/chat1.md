@@ -1,1 +1,0 @@
-Review the @README.md and make a plan implement core the 5 core features. Each section of the plan should be one of the steps that can be implemented individually. Help me understand the codebase and how to add to it. Make sure you ask questions rather than just assuming things
