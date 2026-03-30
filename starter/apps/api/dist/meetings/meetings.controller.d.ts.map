@@ -1,1 +1,0 @@
-{"version":3,"file":"meetings.controller.d.ts","sourceRoot":"","sources":["../../src/meetings/meetings.controller.ts"],"names":[],"mappings":"AAQA,OAAO,EAAE,eAAe,EAAE,MAAM,oBAAoB,CAAC;AACrD,OAAO,EAAE,gBAAgB,EAAE,MAAM,sBAAsB,CAAC;AAExD,qBACa,kBAAkB;IACjB,OAAO,CAAC,QAAQ,CAAC,eAAe;gBAAf,eAAe,EAAE,eAAe;IAG7D,MAAM,CAAS,GAAG,EAAE,gBAAgB;IAKpC,OAAO;IAKP,OAAO,CAAmC,EAAE,EAAE,MAAM;CAGrD"}
