@@ -43,3 +43,19 @@ export interface Meeting {
   createdAt: string;
   updatedAt: string;
 }
+
+// --- API request / response DTOs ---
+
+export interface CreateMeetingRequest {
+  title: string;
+  occurredAt: string;
+  transcriptText: string;
+}
+
+export interface MeetingSummary {
+  id: string;
+  title: string;
+  occurredAt: string;
+  analysisStatus: AnalysisStatus;
+  createdAt: string;
+}

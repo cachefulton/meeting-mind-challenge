@@ -10,13 +10,17 @@ exports.MeetingsModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const meeting_entity_1 = require("./meeting.entity");
+const meetings_controller_1 = require("./meetings.controller");
+const meetings_service_1 = require("./meetings.service");
 let MeetingsModule = class MeetingsModule {
 };
 exports.MeetingsModule = MeetingsModule;
 exports.MeetingsModule = MeetingsModule = __decorate([
     (0, common_1.Module)({
         imports: [typeorm_1.TypeOrmModule.forFeature([meeting_entity_1.Meeting])],
-        exports: [typeorm_1.TypeOrmModule],
+        controllers: [meetings_controller_1.MeetingsController],
+        providers: [meetings_service_1.MeetingsService],
+        exports: [typeorm_1.TypeOrmModule, meetings_service_1.MeetingsService],
     })
 ], MeetingsModule);
 //# sourceMappingURL=meetings.module.js.map

@@ -35,4 +35,16 @@ export interface Meeting {
     createdAt: string;
     updatedAt: string;
 }
+export interface CreateMeetingRequest {
+    title: string;
+    occurredAt: string;
+    transcriptText: string;
+}
+export interface MeetingSummary {
+    id: string;
+    title: string;
+    occurredAt: string;
+    analysisStatus: AnalysisStatus;
+    createdAt: string;
+}
 //# sourceMappingURL=index.d.ts.map

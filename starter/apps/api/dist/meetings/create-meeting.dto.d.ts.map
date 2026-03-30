@@ -1,0 +1,1 @@
+{"version":3,"file":"create-meeting.dto.d.ts","sourceRoot":"","sources":["../../src/meetings/create-meeting.dto.ts"],"names":[],"mappings":"AACA,OAAO,KAAK,EAAE,oBAAoB,EAAE,MAAM,sBAAsB,CAAC;AAEjE,qBAAa,gBAAiB,YAAW,oBAAoB;IAG3D,KAAK,EAAG,MAAM,CAAC;IAGf,UAAU,EAAG,MAAM,CAAC;IAIpB,cAAc,EAAG,MAAM,CAAC;CACzB"}
