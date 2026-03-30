@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
+    "build:shared": "npm run build -w @meeting-mind/shared",
     "lint": "turbo lint",
     "db:migrate": "turbo db:migrate --filter=api"
   },
