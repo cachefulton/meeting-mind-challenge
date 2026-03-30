@@ -66,7 +66,11 @@ export interface CreateMeetingRequest {
 }
 
 export interface UpdateMeetingRequest {
-  title: string;
+  title?: string;
+  summary?: string | null;
+  actionItems?: ActionItem[];
+  decisions?: Decision[];
+  openQuestions?: OpenQuestion[];
 }
 
 export interface MeetingSummary {

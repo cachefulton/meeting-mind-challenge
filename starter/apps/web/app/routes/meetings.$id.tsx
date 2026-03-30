@@ -1,6 +1,12 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, type ReactNode } from 'react';
 import { Link, useLoaderData, useFetcher, redirect } from 'react-router';
-import { AnalysisStatus, type Meeting } from '@meeting-mind/shared';
+import {
+  AnalysisStatus,
+  type Meeting,
+  type ActionItem,
+  type Decision,
+  type OpenQuestion,
+} from '@meeting-mind/shared';
 import type { Route } from './+types/meetings.$id';
 import { getApiUrl } from '../api-url.server';
 import { statusLabel, statusClass } from '../analysis-status';
@@ -33,16 +39,35 @@ export async function action({ request, params }: Route.ActionArgs) {
     return redirect(`/meetings/${params.id}`);
   }
 
-  const title = formData.get('title')?.toString().trim();
-  if (!title) return { error: 'Title cannot be empty.' };
+  const body: Record<string, unknown> = {};
+
+  if (formData.has('title')) {
+    const title = formData.get('title')?.toString().trim();
+    if (!title) return { error: 'Title cannot be empty.' };
+    body.title = title;
+  }
+  if (formData.has('summary')) {
+    body.summary = formData.get('summary')?.toString() || null;
+  }
+  if (formData.has('actionItems')) {
+    body.actionItems = JSON.parse(formData.get('actionItems') as string);
+  }
+  if (formData.has('decisions')) {
+    body.decisions = JSON.parse(formData.get('decisions') as string);
+  }
+  if (formData.has('openQuestions')) {
+    body.openQuestions = JSON.parse(formData.get('openQuestions') as string);
+  }
+
+  if (Object.keys(body).length === 0) return { error: 'No changes provided.' };
 
   const res = await fetch(`${apiUrl}/meetings/${params.id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title }),
+    body: JSON.stringify(body),
   });
 
-  if (!res.ok) return { error: 'Failed to update title.' };
+  if (!res.ok) return { error: 'Failed to update meeting.' };
   return { ok: true };
 }
 
@@ -99,17 +124,195 @@ function EditableTitle({ initialTitle }: { initialTitle: string }) {
       <h1 className="text-2xl font-bold tracking-tight text-gray-900">
         {title}
       </h1>
-      <button
-        type="button"
-        onClick={() => setIsEditing(true)}
-        className="rounded p-1 text-gray-400 opacity-0 transition-opacity hover:text-gray-600 group-hover:opacity-100"
-        aria-label="Edit title"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
-          <path d="M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z" />
-        </svg>
-      </button>
+      <EditButton onClick={() => setIsEditing(true)} label="Edit title" />
     </div>
+  );
+}
+
+function PencilIcon({ className = 'h-4 w-4' }: { className?: string }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={className}>
+      <path d="M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z" />
+    </svg>
+  );
+}
+
+function EditButton({ onClick, label }: { onClick: () => void; label: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="rounded p-1 text-gray-400 opacity-0 transition-opacity hover:text-gray-600 group-hover:opacity-100"
+      aria-label={label}
+    >
+      <PencilIcon />
+    </button>
+  );
+}
+
+function EditableSummary({ initialSummary }: { initialSummary: string }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [summary, setSummary] = useState(initialSummary);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fetcher = useFetcher();
+
+  useEffect(() => {
+    if (isEditing && textareaRef.current) {
+      textareaRef.current.focus();
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+    }
+  }, [isEditing]);
+
+  function handleSave() {
+    const trimmed = summary.trim();
+    if (trimmed === initialSummary) {
+      setSummary(initialSummary);
+      setIsEditing(false);
+      return;
+    }
+    fetcher.submit({ summary: trimmed }, { method: 'PATCH' });
+    setIsEditing(false);
+  }
+
+  if (isEditing) {
+    return (
+      <textarea
+        ref={textareaRef}
+        value={summary}
+        onChange={(e) => {
+          setSummary(e.target.value);
+          e.target.style.height = 'auto';
+          e.target.style.height = e.target.scrollHeight + 'px';
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            setSummary(initialSummary);
+            setIsEditing(false);
+          }
+        }}
+        onBlur={handleSave}
+        className="mt-2 w-full whitespace-pre-wrap rounded-md border border-gray-300 px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      />
+    );
+  }
+
+  return (
+    <div className="group flex items-start gap-2">
+      <p className="mt-2 whitespace-pre-wrap text-gray-800">{summary}</p>
+      <EditButton onClick={() => setIsEditing(true)} label="Edit summary" />
+    </div>
+  );
+}
+
+function EditableListSection<T extends { text: string }>({
+  items,
+  fieldName,
+  renderExtra,
+  renderExtraEditor,
+  buildItem,
+}: {
+  items: T[];
+  fieldName: string;
+  renderExtra?: (item: T) => ReactNode;
+  renderExtraEditor?: (
+    item: T,
+    onChange: (updated: Partial<T>) => void,
+  ) => ReactNode;
+  buildItem: (text: string, original: T) => T;
+}) {
+  const [localItems, setLocalItems] = useState(items);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editText, setEditText] = useState('');
+  const [editExtra, setEditExtra] = useState<Partial<T>>({});
+  const inputRef = useRef<HTMLInputElement>(null);
+  const fetcher = useFetcher();
+
+  useEffect(() => {
+    if (editingIndex !== null) inputRef.current?.focus();
+  }, [editingIndex]);
+
+  function startEditing(index: number) {
+    setEditingIndex(index);
+    setEditText(localItems[index].text);
+    setEditExtra({});
+  }
+
+  function cancelEditing() {
+    setEditingIndex(null);
+    setEditText('');
+    setEditExtra({});
+  }
+
+  function handleSave(index: number) {
+    const trimmed = editText.trim();
+    if (!trimmed) {
+      cancelEditing();
+      return;
+    }
+
+    const original = localItems[index];
+    const updated = { ...buildItem(trimmed, original), ...editExtra };
+
+    if (JSON.stringify(updated) === JSON.stringify(original)) {
+      cancelEditing();
+      return;
+    }
+
+    const newItems = [...localItems];
+    newItems[index] = updated as T;
+    setLocalItems(newItems);
+    setEditingIndex(null);
+    fetcher.submit(
+      { [fieldName]: JSON.stringify(newItems) },
+      { method: 'PATCH' },
+    );
+  }
+
+  return (
+    <ul className="mt-2 list-inside list-disc space-y-1 text-gray-800">
+      {localItems.map((item, i) => (
+        <li key={i} className="group flex items-start gap-2">
+          {editingIndex === i ? (
+            <div
+              className="flex flex-1 flex-col gap-1"
+              onBlur={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                  handleSave(i);
+                }
+              }}
+            >
+              <input
+                ref={inputRef}
+                type="text"
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSave(i);
+                  if (e.key === 'Escape') cancelEditing();
+                }}
+                className="w-full rounded-md border border-gray-300 px-2 py-1 text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+              {renderExtraEditor?.(
+                { ...item, ...editExtra } as T,
+                (partial) => setEditExtra((prev) => ({ ...prev, ...partial })),
+              )}
+            </div>
+          ) : (
+            <>
+              <span className="flex-1">
+                {item.text}
+                {renderExtra?.(item)}
+              </span>
+              <EditButton
+                onClick={() => startEditing(i)}
+                label={`Edit ${fieldName} item`}
+              />
+            </>
+          )}
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -197,9 +400,7 @@ export default function MeetingDetail() {
           <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
             Summary
           </h2>
-          <p className="mt-2 whitespace-pre-wrap text-gray-800">
-            {meeting.summary}
-          </p>
+          <EditableSummary initialSummary={meeting.summary} />
         </section>
       )}
 
@@ -208,16 +409,28 @@ export default function MeetingDetail() {
           <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
             Action items
           </h2>
-          <ul className="mt-2 list-inside list-disc space-y-1 text-gray-800">
-            {(meeting.actionItems ?? []).map((item, i) => (
-              <li key={i}>
-                {item.text}
-                {item.assignee && (
-                  <span className="text-gray-500"> — {item.assignee}</span>
-                )}
-              </li>
-            ))}
-          </ul>
+          <EditableListSection<ActionItem>
+            items={meeting.actionItems ?? []}
+            fieldName="actionItems"
+            buildItem={(text, original) => ({
+              text,
+              assignee: original.assignee,
+            })}
+            renderExtra={(item) =>
+              item.assignee ? (
+                <span className="text-gray-500"> — {item.assignee}</span>
+              ) : null
+            }
+            renderExtraEditor={(item, onChange) => (
+              <input
+                type="text"
+                placeholder="Assignee (optional)"
+                defaultValue={item.assignee ?? ''}
+                onChange={(e) => onChange({ assignee: e.target.value || undefined } as Partial<ActionItem>)}
+                className="w-full rounded-md border border-gray-300 px-2 py-1 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            )}
+          />
         </section>
       )}
 
@@ -226,11 +439,11 @@ export default function MeetingDetail() {
           <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
             Decisions
           </h2>
-          <ul className="mt-2 list-inside list-disc space-y-1 text-gray-800">
-            {(meeting.decisions ?? []).map((d, i) => (
-              <li key={i}>{d.text}</li>
-            ))}
-          </ul>
+          <EditableListSection<Decision>
+            items={meeting.decisions ?? []}
+            fieldName="decisions"
+            buildItem={(text) => ({ text })}
+          />
         </section>
       )}
 
@@ -239,11 +452,11 @@ export default function MeetingDetail() {
           <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
             Open questions
           </h2>
-          <ul className="mt-2 list-inside list-disc space-y-1 text-gray-800">
-            {(meeting.openQuestions ?? []).map((q, i) => (
-              <li key={i}>{q.text}</li>
-            ))}
-          </ul>
+          <EditableListSection<OpenQuestion>
+            items={meeting.openQuestions ?? []}
+            fieldName="openQuestions"
+            buildItem={(text) => ({ text })}
+          />
         </section>
       )}
 

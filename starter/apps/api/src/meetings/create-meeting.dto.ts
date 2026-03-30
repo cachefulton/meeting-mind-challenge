@@ -3,11 +3,17 @@ import {
   IsNotEmpty,
   IsOptional,
   IsDateString,
+  IsArray,
   MaxLength,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import type {
   CreateMeetingRequest,
   UpdateMeetingRequest,
+  ActionItem,
+  Decision,
+  OpenQuestion,
 } from '@meeting-mind/shared';
 
 export class CreateMeetingDto implements CreateMeetingRequest {
@@ -25,9 +31,54 @@ export class CreateMeetingDto implements CreateMeetingRequest {
   transcriptText!: string;
 }
 
+export class ActionItemDto implements ActionItem {
+  @IsString()
+  @IsNotEmpty()
+  text!: string;
+
+  @IsOptional()
+  @IsString()
+  assignee?: string;
+}
+
+export class DecisionDto implements Decision {
+  @IsString()
+  @IsNotEmpty()
+  text!: string;
+}
+
+export class OpenQuestionDto implements OpenQuestion {
+  @IsString()
+  @IsNotEmpty()
+  text!: string;
+}
+
 export class UpdateMeetingDto implements UpdateMeetingRequest {
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   @MaxLength(200)
-  title!: string;
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  summary?: string | null;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ActionItemDto)
+  actionItems?: ActionItemDto[];
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => DecisionDto)
+  decisions?: DecisionDto[];
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => OpenQuestionDto)
+  openQuestions?: OpenQuestionDto[];
 }

@@ -56,7 +56,11 @@ export class MeetingsService {
     if (!meeting) {
       throw new NotFoundException(`Meeting ${id} not found`);
     }
-    meeting.title = dto.title;
+    if (dto.title !== undefined) meeting.title = dto.title;
+    if (dto.summary !== undefined) meeting.summary = dto.summary;
+    if (dto.actionItems !== undefined) meeting.actionItems = dto.actionItems;
+    if (dto.decisions !== undefined) meeting.decisions = dto.decisions;
+    if (dto.openQuestions !== undefined) meeting.openQuestions = dto.openQuestions;
     const saved = await this.meetingsRepo.save(meeting);
     return this.toResponse(saved);
   }
