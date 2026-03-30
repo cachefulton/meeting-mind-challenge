@@ -86,8 +86,9 @@ let AnalysisService = AnalysisService_1 = class AnalysisService {
             throw new Error('GOOGLE_AI_API_KEY is not set. Cannot initialise AnalysisService.');
         }
         const genAI = new generative_ai_1.GoogleGenerativeAI(apiKey);
+        const modelName = this.configService.get('GOOGLE_AI_MODEL') ?? 'gemini-2.5-flash';
         this.model = genAI.getGenerativeModel({
-            model: 'gemini-2.0-flash',
+            model: modelName,
             generationConfig: {
                 responseMimeType: 'application/json',
                 responseSchema: ANALYSIS_SCHEMA,

@@ -85,8 +85,10 @@ export class AnalysisService {
       );
     }
     const genAI = new GoogleGenerativeAI(apiKey);
+    const modelName =
+      this.configService.get<string>('GOOGLE_AI_MODEL') ?? 'gemini-2.5-flash';
     this.model = genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash',
+      model: modelName,
       generationConfig: {
         responseMimeType: 'application/json',
         responseSchema: ANALYSIS_SCHEMA,
