@@ -11,6 +11,11 @@ import type { AnalysisResult } from '@meeting-mind/shared';
 const ANALYSIS_SCHEMA: Schema = {
   type: SchemaType.OBJECT,
   properties: {
+    title: {
+      type: SchemaType.STRING,
+      description:
+        'A short, descriptive title for the meeting (max 10 words). Should capture the main topic or purpose.',
+    },
     summary: {
       type: SchemaType.STRING,
       description: 'A concise 2-4 sentence summary of the meeting.',
@@ -63,10 +68,11 @@ const ANALYSIS_SCHEMA: Schema = {
       description: 'Open questions or unresolved items from the meeting.',
     },
   },
-  required: ['summary', 'actionItems', 'decisions', 'openQuestions'],
+  required: ['title', 'summary', 'actionItems', 'decisions', 'openQuestions'],
 };
 
 const SYSTEM_PROMPT = `You are a meeting-analysis assistant. Given a meeting transcript, extract structured data. Be thorough but concise:
+- Title: a short, descriptive title for the meeting (max 10 words) that captures the main topic or purpose.
 - Summary: 2-4 sentences capturing the essence of the meeting.
 - Action items: every task, follow-up, or commitment mentioned. Include the assignee's name when one is stated or clearly implied.
 - Decisions: conclusions or agreements the group reached.
@@ -116,6 +122,7 @@ export class AnalysisService {
     }
 
     if (
+      !parsed.title ||
       !parsed.summary ||
       !Array.isArray(parsed.actionItems) ||
       !Array.isArray(parsed.decisions) ||

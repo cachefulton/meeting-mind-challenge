@@ -11,11 +11,15 @@ export interface HealthResponse {
 
 // --- Meeting domain types ---
 
-export enum AnalysisStatus {
-  Pending = 'pending',
-  Completed = 'completed',
-  Failed = 'failed',
-}
+/** String union + const object (not a TS enum) so Vite SSR / ESM consumers avoid CommonJS `exports` issues. */
+export const AnalysisStatus = {
+  Pending: 'pending',
+  Completed: 'completed',
+  Failed: 'failed',
+} as const;
+
+export type AnalysisStatus =
+  (typeof AnalysisStatus)[keyof typeof AnalysisStatus];
 
 export interface ActionItem {
   text: string;
@@ -40,11 +44,13 @@ export interface Meeting {
   decisions: Decision[];
   openQuestions: OpenQuestion[];
   analysisStatus: AnalysisStatus;
+  analysisError: string | null;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface AnalysisResult {
+  title: string;
   summary: string;
   actionItems: ActionItem[];
   decisions: Decision[];
@@ -54,9 +60,13 @@ export interface AnalysisResult {
 // --- API request / response DTOs ---
 
 export interface CreateMeetingRequest {
-  title: string;
+  title?: string;
   occurredAt: string;
   transcriptText: string;
+}
+
+export interface UpdateMeetingRequest {
+  title: string;
 }
 
 export interface MeetingSummary {

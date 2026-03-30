@@ -40,10 +40,13 @@ export class Meeting {
 
   @Column({
     type: 'enum',
-    enum: AnalysisStatus,
+    enum: Object.values(AnalysisStatus),
     default: AnalysisStatus.Pending,
   })
   analysisStatus!: AnalysisStatus;
+
+  @Column({ type: 'text', nullable: true })
+  analysisError!: string | null;
 
   @CreateDateColumn()
   createdAt!: Date;

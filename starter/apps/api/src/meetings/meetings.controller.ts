@@ -2,12 +2,13 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Param,
   Body,
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { MeetingsService } from './meetings.service';
-import { CreateMeetingDto } from './create-meeting.dto';
+import { CreateMeetingDto, UpdateMeetingDto } from './create-meeting.dto';
 
 @Controller('meetings')
 export class MeetingsController {
@@ -26,5 +27,18 @@ export class MeetingsController {
   @Get(':id')
   findOne(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.meetingsService.findOne(id);
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdateMeetingDto,
+  ) {
+    return this.meetingsService.update(id, dto);
+  }
+
+  @Post(':id/retry')
+  retry(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.meetingsService.retryAnalysis(id);
   }
 }

@@ -1,4 +1,4 @@
-import { Form, redirect, useActionData, useNavigation, Link } from 'react-router';
+import { Form, redirect, useNavigation, Link } from 'react-router';
 import type { Route } from './+types/meetings.new';
 import { getApiUrl } from '../api-url.server';
 
@@ -8,24 +8,22 @@ export function meta() {
 
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
-  const title = formData.get('title')?.toString().trim() ?? '';
   const occurredAt = formData.get('occurredAt')?.toString().trim() ?? '';
   const transcriptText = formData.get('transcriptText')?.toString().trim() ?? '';
 
   const errors: Record<string, string> = {};
-  if (!title) errors.title = 'Title is required.';
   if (!occurredAt) errors.occurredAt = 'Date is required.';
   if (!transcriptText) errors.transcriptText = 'Transcript text is required.';
 
   if (Object.keys(errors).length > 0) {
-    return { errors, values: { title, occurredAt, transcriptText } };
+    return { errors, values: { occurredAt, transcriptText } };
   }
 
   const apiUrl = getApiUrl();
   const res = await fetch(`${apiUrl}/meetings`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title, occurredAt, transcriptText }),
+    body: JSON.stringify({ occurredAt, transcriptText }),
   });
 
   if (!res.ok) {
@@ -38,12 +36,20 @@ export async function action({ request }: Route.ActionArgs) {
     }
     return {
       errors: { form: message },
-      values: { title, occurredAt, transcriptText },
+      values: { occurredAt, transcriptText },
     };
   }
 
   const meeting = (await res.json()) as { id: string };
   return redirect(`/meetings/${meeting.id}`);
+}
+
+function todayISO() {
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 export default function NewMeeting({ actionData }: Route.ComponentProps) {
@@ -66,7 +72,8 @@ export default function NewMeeting({ actionData }: Route.ComponentProps) {
         </h2>
         <p className="mt-1 text-sm text-gray-500">
           Paste a transcript and we'll extract a summary, action items,
-          decisions, and open questions.
+          decisions, and open questions. The title will be generated
+          automatically.
         </p>
       </div>
 
@@ -79,30 +86,6 @@ export default function NewMeeting({ actionData }: Route.ComponentProps) {
       <Form method="post" className="space-y-6">
         <div>
           <label
-            htmlFor="title"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Meeting title
-          </label>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            defaultValue={values?.title ?? ''}
-            placeholder="e.g. Sprint planning — March 30"
-            className={`mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm ${
-              errors?.title
-                ? 'border-red-300 text-red-900 placeholder-red-300'
-                : 'border-gray-300'
-            }`}
-          />
-          {errors?.title && (
-            <p className="mt-1 text-sm text-red-600">{errors.title}</p>
-          )}
-        </div>
-
-        <div>
-          <label
             htmlFor="occurredAt"
             className="block text-sm font-medium text-gray-700"
           >
@@ -112,7 +95,7 @@ export default function NewMeeting({ actionData }: Route.ComponentProps) {
             type="date"
             id="occurredAt"
             name="occurredAt"
-            defaultValue={values?.occurredAt ?? ''}
+            defaultValue={values?.occurredAt ?? todayISO()}
             className={`mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm ${
               errors?.occurredAt
                 ? 'border-red-300 text-red-900'

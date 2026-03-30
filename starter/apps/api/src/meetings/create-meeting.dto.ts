@@ -1,16 +1,20 @@
 import {
   IsString,
   IsNotEmpty,
+  IsOptional,
   IsDateString,
   MaxLength,
 } from 'class-validator';
-import type { CreateMeetingRequest } from '@meeting-mind/shared';
+import type {
+  CreateMeetingRequest,
+  UpdateMeetingRequest,
+} from '@meeting-mind/shared';
 
 export class CreateMeetingDto implements CreateMeetingRequest {
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   @MaxLength(200)
-  title!: string;
+  title?: string;
 
   @IsDateString()
   occurredAt!: string;
@@ -19,4 +23,11 @@ export class CreateMeetingDto implements CreateMeetingRequest {
   @IsNotEmpty()
   @MaxLength(500_000)
   transcriptText!: string;
+}
+
+export class UpdateMeetingDto implements UpdateMeetingRequest {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(200)
+  title!: string;
 }

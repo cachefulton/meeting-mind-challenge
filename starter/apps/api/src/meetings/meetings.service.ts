@@ -7,7 +7,7 @@ import type {
   MeetingSummary,
 } from '@meeting-mind/shared';
 import { Meeting } from './meeting.entity';
-import { CreateMeetingDto } from './create-meeting.dto';
+import { CreateMeetingDto, UpdateMeetingDto } from './create-meeting.dto';
 import { AnalysisService } from '../analysis/analysis.service';
 
 @Injectable()
@@ -22,7 +22,7 @@ export class MeetingsService {
 
   async create(dto: CreateMeetingDto): Promise<MeetingResponse> {
     const meeting = this.meetingsRepo.create({
-      title: dto.title,
+      title: dto.title || 'Untitled Meeting',
       occurredAt: dto.occurredAt,
       transcriptText: dto.transcriptText,
     });
@@ -31,20 +31,66 @@ export class MeetingsService {
 
     try {
       const analysis = await this.analysisService.analyze(saved.transcriptText);
+      saved.title = dto.title || analysis.title;
       saved.summary = analysis.summary;
       saved.actionItems = analysis.actionItems;
       saved.decisions = analysis.decisions;
       saved.openQuestions = analysis.openQuestions;
       saved.analysisStatus = AnalysisStatus.Completed;
+      saved.analysisError = null;
     } catch (err) {
       this.logger.error(
         `Analysis failed for meeting ${saved.id}`,
         err instanceof Error ? err.stack : err,
       );
       saved.analysisStatus = AnalysisStatus.Failed;
+      saved.analysisError = err instanceof Error ? err.message : String(err);
     }
 
     const updated = await this.meetingsRepo.save(saved);
+    return this.toResponse(updated);
+  }
+
+  async update(id: string, dto: UpdateMeetingDto): Promise<MeetingResponse> {
+    const meeting = await this.meetingsRepo.findOne({ where: { id } });
+    if (!meeting) {
+      throw new NotFoundException(`Meeting ${id} not found`);
+    }
+    meeting.title = dto.title;
+    const saved = await this.meetingsRepo.save(meeting);
+    return this.toResponse(saved);
+  }
+
+  async retryAnalysis(id: string): Promise<MeetingResponse> {
+    const meeting = await this.meetingsRepo.findOne({ where: { id } });
+    if (!meeting) {
+      throw new NotFoundException(`Meeting ${id} not found`);
+    }
+
+    meeting.analysisStatus = AnalysisStatus.Pending;
+    await this.meetingsRepo.save(meeting);
+
+    try {
+      const analysis = await this.analysisService.analyze(meeting.transcriptText);
+      if (meeting.title === 'Untitled Meeting') {
+        meeting.title = analysis.title;
+      }
+      meeting.summary = analysis.summary;
+      meeting.actionItems = analysis.actionItems;
+      meeting.decisions = analysis.decisions;
+      meeting.openQuestions = analysis.openQuestions;
+      meeting.analysisStatus = AnalysisStatus.Completed;
+      meeting.analysisError = null;
+    } catch (err) {
+      this.logger.error(
+        `Retry analysis failed for meeting ${meeting.id}`,
+        err instanceof Error ? err.stack : err,
+      );
+      meeting.analysisStatus = AnalysisStatus.Failed;
+      meeting.analysisError = err instanceof Error ? err.message : String(err);
+    }
+
+    const updated = await this.meetingsRepo.save(meeting);
     return this.toResponse(updated);
   }
 
@@ -82,6 +128,7 @@ export class MeetingsService {
       decisions: m.decisions,
       openQuestions: m.openQuestions,
       analysisStatus: m.analysisStatus,
+      analysisError: m.analysisError,
       createdAt: m.createdAt instanceof Date ? m.createdAt.toISOString() : m.createdAt,
       updatedAt: m.updatedAt instanceof Date ? m.updatedAt.toISOString() : m.updatedAt,
     };
